@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreepMiner GUI</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="node_modules/material-design-lite/material.min.css">
+    <script src="node_modules/material-design-lite/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="header">
+        <div class="insideHeader left">
+          Your wallet: <strong>BURST-YY7Z-K8KK-E2B9-AKQCQ</strong><br>
+          Miner is on block: <strong id="nowBlockInfo">-</strong><br>
+          Best deadline in current round: <strong id="nowDlInfo">-</strong>
+        </div>
+        <div class="insideWrapper right">
+          <div class="walletDivText right">
+            <strong>Pending</strong><br><span id="pendingMainNum" class="mainBodyBurstBallance">0</span>.<span id="pendingDecNum">00000000</span>
+          </div>
+          <div class="walletDivText right">
+            <strong>Balance</strong><br><span id="balanceMainNum" class="mainBodyBurstBallance">0</span>.<span id="balanceDecNum">00000000</span>
+          </div>
+          <div class="walletDivI right">
+            <i class="material-icons">account_balance_wallet</i>
+          </div>
+        </div>
+      </div>
+      <div class="mainWrapper">
+        <div id="sideBar">
+          <button id="infoBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton sideButtonActive">
+            <i class="material-icons">home</i><br>Overview
+          </button>
+          <button id="minerBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">play_for_work</i><br>Miner
+          </button>
+          <button id="consoleBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">airplay</i><br>Console
+          </button>
+          <button id="winnersBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">group</i><br>Winners
+          </button>
+          <button id="setBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">settings</i><br>Settings
+          </button>
+        </div>
+        <div id="mainContent">
+          <div id="minerArea" class="hide"></div>
+          <div id="consoleArea" class="hide">
+            <div id="consoleAreaDiv"></div>
+          </div>
+          <div id="infoArea">
+            <div class="infoHeader">
+              <div class="left highscores">
+                <strong>Highscores</strong><br>
+                This block: <strong id="thisBlockBest" class="right"></strong><br>
+                Overall: <strong id="bestDeadlineOverall" class="right"></strong><br>
+                Confirmed deadlines: <strong id="confirmedDeadlines" class="right"></strong><br>
+                Won blocks: <strong id="wonBlocks" class="right"></strong><br>
+                Mined blocks: <strong id="minedBlocks" class="right"></strong><br>
+                Average deadline: <strong id="averageDeadline" class="right"></strong>
+              </div>
+              <div class="left highscores">
+                <strong>System</strong><br>
+                Pool url: <strong id="poolUrl" class="right"></strong><br>
+                Mining url: <strong id="miningUrl" class="right"></strong><br>
+                Wallet url: <strong id="walletUrl" class="right"></strong><br>
+                Plot size: <strong id="plotSize" class="right"></strong><br>
+                Buffer size: <strong id="bufferSize" class="right"></strong><br>
+                Target deadline: <strong id="targetDeadline" class="right"></strong><br>
+                Plot readers: <strong id="plotReaders" class="right"></strong><br>
+                Mining intensity: <strong id="miningIntensity" class="right"></strong><br>
+                Submission retry: <strong id="submissionRetry" class="right"></strong>
+              </div>
+              <div class="startBtnDiv right">
+                <button id="startBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect">
+                  <i class="material-icons">play_arrow</i> Start mining
+                </button><br>
+                (not recommended)
+              </div>
+            </div>
+            <div id="nowBlock"></div>
+            <div class="canvasDiv">
+              <canvas id="myChart" responsive="true"></canvas>
+            </div>
+          </div>
+          <div id="winnersArea" class="hide"></div>
+          <div id="settingsArea" class="hide">
+
+
+
+            <main class="mdl-layout__content mainTabs">    
+              <div class="mdl-tabs mdl-js-tabs">
+                  <div class="mdl-tabs__tab-bar">
+                    <a href="#tab1-panel" class="mdl-tabs__tab is-active">General</a>
+                    <a href="#tab5-panel" class="mdl-tabs__tab">Account</a>
+                    <a href="#tab2-panel" class="mdl-tabs__tab">Logging</a>
+                    <a href="#tab3-panel" class="mdl-tabs__tab">Mining</a>
+                    <a href="#tab4-panel" class="mdl-tabs__tab">Webserver</a>
+                  </div>
+                  <div class="mdl-tabs__panel is-active" id="tab1-panel">
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label fullwidth80">
+                              <input class="mdl-textfield__input" type="text" id="fldMinerPath">
+                              <label class="mdl-textfield__label" for="fldMinerPath">Miner executable file path</label>
+                          </div>
+                          <button class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect" id="selectMinerBtn">
+                              ...
+                          </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mdl-tabs__panel" id="tab5-panel">
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsWallet">
+                              <label class="mdl-textfield__label" for="acDetailsWallet">Wallet URL</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsBurst">
+                              <label class="mdl-textfield__label" for="acDetailsBurst">BURST Account</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsNumeric" pattern="-?[0-9]*(\.[0-9]+)?">
+                              <label class="mdl-textfield__label" for="acDetailsNumeric">Numeric Account</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsPendingJson">
+                              <label class="mdl-textfield__label" for="acDetailsPendingJson">Pending JSON Feed</label>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mdl-tabs__panel" id="tab2-panel">
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldConfig">
+                              <label class="mdl-textfield__label" for="fldConfig">config</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldGeneral">
+                              <label class="mdl-textfield__label" for="fldGeneral">general</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldMiner">
+                              <label class="mdl-textfield__label" for="fldMiner">miner</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldNonceSubmitter">
+                              <label class="mdl-textfield__label" for="fldNonceSubmitter">nonceSubmitter</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldPath">
+                              <label class="mdl-textfield__label" for="fldPath">path</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldPlotReader">
+                              <label class="mdl-textfield__label" for="fldPlotReader">plotReader</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldPlotVerifier">
+                              <label class="mdl-textfield__label" for="fldPlotVerifier">plotVerifier</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldServer">
+                              <label class="mdl-textfield__label" for="fldServer">server</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldSession">
+                              <label class="mdl-textfield__label" for="fldSession">session</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldSocket">
+                              <label class="mdl-textfield__label" for="fldSocket">socket</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldWallet">
+                              <label class="mdl-textfield__label" for="fldWallet">wallet</label>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardTitle">
+                          <strong>Output</strong>
+                      </div>
+                      <div class="blockCardInfo">
+                          <label id="checkDirDone" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldDirDone">
+                            <input type="checkbox" id="fldDirDone" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">dirDone</span>
+                          </label>
+                          <label id="checkLastWinner" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldLastWinner">
+                            <input type="checkbox" id="fldLastWinner" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">lastWinner</span>
+                          </label>
+                          <label id="checkNonceConfirmed" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldNonceConfirmed">
+                            <input type="checkbox" id="fldNonceConfirmed" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">nonceConfirmed</span>
+                          </label>
+                          <label id="checkNonceFound" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldNonceFound">
+                            <input type="checkbox" id="fldNonceFound" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">nonceFound</span>
+                          </label>
+                          <label id="checkNonceOnTheWay" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldNonceOnTheWay">
+                            <input type="checkbox" id="fldNonceOnTheWay" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">nonceOnTheWay</span>
+                          </label>
+                          <label id="checkNonceSent" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldNonceSent">
+                            <input type="checkbox" id="fldNonceSent" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">nonceSent</span>
+                          </label>
+                          <label id="checkPlotDone" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldPlotDone">
+                            <input type="checkbox" id="fldPlotDone" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">plotDone</span>
+                          </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mdl-tabs__panel" id="tab3-panel">
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldIntensity" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldIntensity">intensity</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldMaxBufferSizeMB" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldMaxBufferSizeMB">maxBufferSizeMB</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldMaxPlotReaders" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldMaxPlotReaders">maxPlotReaders</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldSubmissionMaxRetry" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldSubmissionMaxRetry">submissionMaxRetry</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldTargetDeadline">
+                              <label class="mdl-textfield__label" for="fldTargetDeadline">targetDeadline</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldTimeout" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldTimeout">timeout</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldWalletRequestRetryWaitTime" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldWalletRequestRetryWaitTime">walletRequestRetryWaitTime</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldWalletRequestTries" pattern="-?[0-9]*(\.[0-9]+)?">
+                            <label class="mdl-textfield__label" for="fldWalletRequestTries">fldWalletRequestTries</label>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardTitle">
+                          <strong>Passphrase</strong>
+                      </div>
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldAlgorithm">
+                              <label class="mdl-textfield__label" for="fldAlgorithm">algorithm</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldDecrypted">
+                              <label class="mdl-textfield__label" for="fldDecrypted">decrypted</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldEncrypted">
+                              <label class="mdl-textfield__label" for="fldEncrypted">encrypted</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldIterations" pattern="-?[0-9]*(\.[0-9]+)?">
+                              <label class="mdl-textfield__label" for="fldIterations">iterations</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldKey">
+                              <label class="mdl-textfield__label" for="fldKey">key</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldSalt">
+                              <label class="mdl-textfield__label" for="fldSalt">salt</label>
+                          </div>
+
+                          <label id="checkDeleteKey" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldDeleteKey">
+                            <input type="checkbox" id="fldDeleteKey" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">deleteKey</span>
+                          </label>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardTitle">
+                          <strong>Plots</strong>
+                      </div>
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield">
+                            <textarea class="mdl-textfield__input" type="text" rows= "10" id="fdlPlots" ></textarea>
+                            <label class="mdl-textfield__label" for="fdlPlots">plots</label>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldMiningInfo">
+                            <label class="mdl-textfield__label" for="fldMiningInfo">miningInfo</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldSubmission">
+                            <label class="mdl-textfield__label" for="fldSubmission">submission</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fldUrlsWallet">
+                            <label class="mdl-textfield__label" for="fldUrlsWallet">wallet</label>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mdl-tabs__panel" id="tab4-panel">
+                    <div class="blockCard">
+                      <div class="blockCardTitle">
+                          <strong>Credentials</strong>
+                      </div>
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldHashedPass">
+                              <label class="mdl-textfield__label" for="fldHashedPass">hashed-pass</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldHashedUser">
+                              <label class="mdl-textfield__label" for="fldHashedUser">hashed-user</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldPlainPass">
+                              <label class="mdl-textfield__label" for="fldPlainPass">plain-pass</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldPlainUser">
+                              <label class="mdl-textfield__label" for="fldPlainUser">plain-user</label>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="fldUrl">
+                              <label class="mdl-textfield__label" for="fldUrl">url</label>
+                          </div>
+                          <label id="checkStart" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldStart">
+                            <input type="checkbox" id="fldStart" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">start</span>
+                          </label>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </main>
+
+
+
+
+
+
+
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div id="progressBar" class="mdl-progress mdl-js-progress"></div>
+      <script>
+        document.querySelector('#progressBar').addEventListener('mdl-componentupgraded', function() {
+          this.MaterialProgress.setProgress(0);
+        });
+      </script>
+
+      <div id="footer">
+        <span id="statusFooter"></span>
+      </div>
+    </div>
+
+    <!-- Miner Path Dialog -->
+    <dialog id="minerPathDialog" class="mdl-dialog fullwidth80">
+      <h4 class="mdl-dialog__title">Missing miner executable file path</h4>
+      <div class="mdl-dialog__content">
+        <p>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label fullwidth80">
+            <input class="mdl-textfield__input" type="text" id="fldMinerPathModal">
+            <label class="mdl-textfield__label" for="fldMinerPathModal">Miner executable file path</label>
+          </div>
+          <button class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect" onclick="selectMiner()">
+            ...
+          </button>
+        </p>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button id="minerPathDialogBtn" type="button" class="mdl-button">OK</button>
+      </div>
+    </dialog>
+  </body>
+
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+</script>
+
+</html>

@@ -1,0 +1,231 @@
+html,
+body,
+.wrapper {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    color: #888;
+}
+
+strong {
+    color: #444;
+}
+
+.sideButton {
+    border-radius: 0 !important;
+    width: 100% !important;
+    line-height: 25px !important;
+    height: 70px !important;
+    color: #444 !important;
+}
+
+.sideButton i {
+    font-size: 30px;
+    font-weight: normal;
+}
+
+.sideButtonActive {
+    background-color: rgba(95, 156, 199, 1) !important;
+    color: white !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+}
+
+.sideButton:hover {
+    background-color: rgba(95, 156, 199, 0.5) !important;
+    color: white !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+}
+
+button {
+    color: #444 !important;
+}
+
+button:hover {
+    background-color: #5f9cc7 !important;
+    color: white !important;
+}
+
+.wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#header {
+    background-color: rgba(192, 192, 192, 0.3);
+    height: 100px;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+}
+
+.mainWrapper {
+    width: 100%;
+    flex: 1;
+    display: flex;
+}
+
+#sideBar {
+    background-color: #edf0f7;
+    width: 170px;
+    height: 100%;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+}
+
+#footer {
+    background-color: rgba(192, 192, 192, 0.3);
+    height: 25px;
+    width: 100%;
+    bottom: 0;
+    border-top: 1px solid #ddd;
+}
+
+#footer i {
+    vertical-align: middle;
+}
+
+.insideWrapper,
+.insideHeader {
+    padding: 20px;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+.left {
+    float: left;
+}
+
+.walletDivI i {
+    font-size: 60px;
+    vertical-align: middle;
+    color: slategrey;
+    margin-top: -8px;
+}
+
+.walletDivI,
+.walletDivText {
+    margin-right: 10px;
+}
+
+.mainBodyBurstBallance {
+    font-size: 20px;
+}
+
+#mainContent {
+    flex: 1;
+}
+
+.infoHeader {
+    height: 200px;
+    background-color: rgba(192, 192, 192, 0.1);
+    border-bottom: 1px solid #ddd;
+    padding: 20px;
+}
+
+#progressBar {
+    width: 100%;
+    height: 2px;
+}
+
+.hide {
+    display: none;
+}
+
+#infoArea,
+#minerArea,
+#consoleArea,
+#winnersArea,
+#settingsArea {
+    overflow-y: auto;
+    max-height: 100%;
+    min-height: 100%;
+}
+
+#consoleArea {
+    background-color: #333;
+}
+
+#consoleAreaDiv {
+    padding: 20px;
+    background-color: #333;
+}
+
+
+.danger {
+    color: #a94442 !important;
+    background-color: #f2dede !important;
+}
+
+.warning {
+    color: #8a6d3b !important;
+    background-color: #fcf8e3 !important;
+}
+
+.info {
+    color: #31708f !important;
+    background-color: #d9edf7 !important;
+}
+
+.success {
+    color: #468847 !important;
+    background-color: #dff0d8 !important;
+}
+
+.newText {
+    color: lightcyan  !important;
+}
+
+.warningText {
+    color: orange !important;
+}
+
+.infoText {
+    color: deepskyblue !important;
+}
+
+.successText {
+    color: chartreuse !important;
+}
+
+.errorText {
+    color: red !important;
+}
+
+.blockCard {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.blockCard .mdl-list__item {
+    font-size: 14px !important;
+}
+
+.canvasDiv {
+    padding: 20px;
+}
+
+.space10 {
+    margin-right: 10px;
+}
+
+.highscores {
+    width: 35%;
+    margin-right: 20px;
+}
+
+.startBtnDivTest {
+    line-height: 200px;
+}
+
+.mainTabs {
+    width: 100%;
+}

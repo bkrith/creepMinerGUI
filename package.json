@@ -1,0 +1,31 @@
+{
+  "name": "creepMinerGUI",
+  "version": "1.0.0",
+  "description": "A gui application for amazing Creepsky's miner - creepMiner",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "linux": "electron-packager ./ creepMinerGUI --platform=linux --arch=x64 --out=./dist --icon=./cmgui.png --overwrite",
+    "win": "electron-packager ./ creepMinerGUI --platform=win32 --arch=x64 --out=./dist --icon=./cmgui.ico --overwrite",
+    "mac": "electron-packager ./ creepMinerGUI --platform=darwin --arch=x64 --out=./dist --icon=./cmgui.icns --overwrite"
+  },
+  "repository": "https://github.com/bkrith/creepMinerGUI",
+  "keywords": [
+    "burstcoin",
+    "miner",
+    "creepMiner",
+    "gui"
+  ],
+  "author": "Vassilis",
+  "license": "GNU-3",
+  "devDependencies": {
+    "electron": "~1.6.2",
+    "electron-packager": "^8.7.2"
+  },
+  "dependencies": {
+    "chart.js": "^2.6.0",
+    "dialog-polyfill": "^0.4.7",
+    "material-design-lite": "^1.3.0",
+    "ps-tree": "^1.1.0"
+  }
+}
