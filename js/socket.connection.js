@@ -1,6 +1,7 @@
 'use strict'
 
 const { shell, remote } = require('electron')
+const msg               = require('./message.js')
 
 require('chart.js')
 
@@ -17,10 +18,11 @@ let ctx = document.getElementById("myChart").getContext('2d')
 let myChart = new Chart(ctx)
 
 let newBlock = (block) => {
-    if (!lastBlock) {
-        lastBlock = 1
-    }
-    else if (block.block > lastBlock) {
+    //if (!lastBlock) {
+        //lastBlock = 1
+    //}
+    //else 
+    if (block.block > lastBlock) {
         lastBlock = block.block
         
         nowDlInfo = ''
@@ -67,7 +69,7 @@ let newBlock = (block) => {
             </span>
         `
 
-        getBlockRows(block.bestDeadlines)
+        // getBlockRows(block.bestDeadlines)
         createChart(getBlockRows(block.bestDeadlines), getDeadlinesRows(block.bestDeadlines))
 
         document.getElementById('nowBlockInfo').innerHTML = '<strong>#' + block.block + '</strong>'
@@ -102,7 +104,7 @@ let getDeadlinesRows = (table) => {
 }
 
 let nonceFound = (deadline) => {
-    if (lastBlock > 1) {
+    //if (lastBlock > 1) {
         document.getElementById(`card-dlsAreaBlock_${lastBlock}`).innerHTML += `
             <div class="mdl-list__item warning" id="nonce_${deadline.nonce}">
                 <span class="mdl-list__item-primary-content">
@@ -136,11 +138,11 @@ let nonceFound = (deadline) => {
         document.getElementById('consoleAreaDiv').scrollIntoView(false)
 
         remote.getGlobal('share').lastBlock = `block_${lastBlock}`
-    }
+    //}
 }
 
 let addOrConfirm = (deadline) => {
-    if (lastBlock > 1) {
+    //if (lastBlock > 1) {
         if (nowDlInfoSec == 0 || nowDlInfoSec > deadline.deadlineNum) {
             nowDlInfo = deadline.deadline
             nowDlInfoSec = deadline.deadlineNum
@@ -183,11 +185,11 @@ let addOrConfirm = (deadline) => {
         `
         
         remote.getGlobal('share').lastBlock = `block_${lastBlock}`
-    }
+    //}
 }
 
 let addOrSubmit = (deadline) => {
-    if (lastBlock > 1) {
+    //if (lastBlock > 1) {
         document.getElementById(`nonce_${deadline.nonce}`).classList.remove('warning')
         document.getElementById(`nonce_${deadline.nonce}`).classList.add('info')
         document.getElementById(`nonce_${deadline.nonce}`).innerHTML = `
@@ -221,7 +223,7 @@ let addOrSubmit = (deadline) => {
         `
         
         remote.getGlobal('share').lastBlock = `block_${lastBlock}`
-    }
+    //}
 }
 
 let checkAddBestRound = (deadlineNum, deadline) => {
@@ -233,7 +235,7 @@ let checkAddBestRound = (deadlineNum, deadline) => {
 
 let checkAddBestOverall = (deadlineNum, deadline) => {
     if (!bestDeadlineOverall || bestDeadlineOverall > deadlineNum) {
-		bestDeadlineOverall = deadlineNum;
+		bestDeadlineOverall = deadlineNum
 		document.getElementById('bestDeadlineOverall').innerHTML = deadline
 	}
 }
@@ -262,48 +264,51 @@ let setProgress = (percentage = null) => {
 }
 
 let lastWinner = (winner) => {
-    let d = new Date();
-    let now = d.toTimeString();
-    now = now.split(' ')[0];
+    //if (lastBlock > 1) {
+        let d = new Date()
+        let now = d.toTimeString()
+        now = now.split(' ')[0]
 
-    document.getElementById('winnersArea').innerHTML += `
-        <div class="blockCard">
-            <div class="blockCardTitle">
-                <strong class="blockCardTitleNum"># ${lastBlock - 1}</strong> <span class="right">${now}</span>
+        document.getElementById('winnersArea').innerHTML += `
+            <div class="blockCard">
+                <div class="blockCardTitle">
+                    <strong class="blockCardTitleNum"># ${lastBlock - 1}</strong> <span class="right">${now}</span>
+                </div>
+                <div class="blockCardInfo" id="winner_${lastBlock - 1}">
+                    Name : ${winner.name} <br>
+                    Numeric : ${winner.numeric} <br>
+                    Address : <a href="#" onclick="require('electron').shell.openExternal('https://block.burstcoin.info/acc.php?acc=BURST-${winner.address}')">BURST-${winner.address}</a>
+                </div>
             </div>
-            <div class="blockCardInfo" id="winner_${lastBlock - 1}">
-                Name : ${winner.name} <br>
-                Numeric : ${winner.numeric} <br>
-                Address : <a href="#" onclick="require('electron').shell.openExternal('https://block.burstcoin.info/acc.php?acc=BURST-${winner.address}')">BURST-${winner.address}</a>
-            </div>
-        </div>
-    `
-
-    document.getElementById(`winner_${lastBlock - 1}`).scrollIntoView(false)
-
-    document.getElementById('consoleAreaDiv').innerHTML += `
-            <span class="newText">
-            ${now}: ----------------------------- <br>
-            ${now}: last block winner <br>
-            ${now}: block # ${lastBlock - 1} <br>
-            ${now}: winner-numeric: ${winner.numeric} <br>
-            ${now}: winner-address: <a href="#" onclick="require('electron').shell.openExternal('https://block.burstcoin.info/acc.php?acc=BURST-${winner.address}')">${winner.address}</a> <br>
-            ${now}: winner-name: ${winner.name} <br>
-            ${now}: ----------------------------- <br>
-            </span>
         `
-    
-    document.getElementById('consoleAreaDiv').scrollIntoView(false)
+
+        document.getElementById(`winner_${lastBlock - 1}`).scrollIntoView(false)
+
+        document.getElementById('consoleAreaDiv').innerHTML += `
+                <span class="newText">
+                ${now}: ----------------------------- <br>
+                ${now}: last block winner <br>
+                ${now}: block # ${lastBlock - 1} <br>
+                ${now}: winner-numeric: ${winner.numeric} <br>
+                ${now}: winner-address: <a href="#" onclick="require('electron').shell.openExternal('https://block.burstcoin.info/acc.php?acc=BURST-${winner.address}')">${winner.address}</a> <br>
+                ${now}: winner-name: ${winner.name} <br>
+                ${now}: ----------------------------- <br>
+                </span>
+            `
         
-    remote.getGlobal('share').lastWinner = `winner_${lastBlock - 1}`
+        document.getElementById('consoleAreaDiv').scrollIntoView(false)
+            
+        remote.getGlobal('share').lastWinner = `winner_${lastBlock - 1}`
+    //}
 }
 
 let wonBlock = (blocksWon) => {
-    if (blocksWon) console.log(blocksWon);
+    if (blocksWon) console.log(blocksWon)
 }
 
-let minerConsole = (type) => {
-    if (type) console.log(type)
+let minerConsole = (data) => {
+    console.log(data)
+    msg.message('warning', JSON.stringify(data), 'Miner')
 }
 
 let createChart = (blocks, deadlines) => {
@@ -335,19 +340,34 @@ let createChart = (blocks, deadlines) => {
                         }
                     }
                 }]
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                displayColors: false,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        let label = data.labels[tooltipItem.index]
+                        let datasetLabel = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+                        return 'Deadline: ' + deadlineFormat(parseInt(datasetLabel)) 
+                    },
+                    title: function(tooltipItem, data) {
+                        return 'Block #' + tooltipItem[0].xLabel
+                    }
+                }
             }
         }
-    });
+    })
 }
 
 let deadlineFormat = (val) => {
-	var secs = Math.floor(val)
-	var mins = Math.floor(secs / 60)
-	var hours = Math.floor(mins / 60)
-	var day = Math.floor(hours / 24)
-	var months = Math.floor(day / 30)
-	var years = Math.floor(months / 12)
-	var msg = ""
+	let secs = Math.floor(val)
+	let mins = Math.floor(secs / 60)
+	let hours = Math.floor(mins / 60)
+	let day = Math.floor(hours / 24)
+	let months = Math.floor(day / 30)
+	let years = Math.floor(months / 12)
+	let msg = ""
 	
 	if (years > 0)
 		msg += years.toFixed() + "y "
@@ -359,7 +379,7 @@ let deadlineFormat = (val) => {
 	msg += ("00" + (mins % 60)).slice(-2) + ':'
 	msg += ("00" + (secs % 60)).slice(-2)
 
-	return msg;
+	return msg
 }
 
 let reverseTimeFormat = (val) => {
@@ -395,8 +415,23 @@ let reverseTimeFormat = (val) => {
     return seconds
 }
 
+let clearAreas = () => {
+    remote.getGlobal('share').lastBlock = ''
+    remote.getGlobal('share').lastWinner = ''
+    document.getElementById('minerArea').innerHTML = '<span></span>'
+    
+    document.getElementById('consoleAreaDiv').innerHTML = '<span></span>'
+
+    document.getElementById('logAreaDiv').innerHTML = '<span></span>'
+    
+    document.getElementById('winnersArea').innerHTML = '<span></span>'
+}
+
 let connect = () => {
-            if (ws) ws.close(3001)
+            if (ws) {
+                ws.close(3001)
+                clearAreas()
+            }
         
             if (remote.getGlobal('conf').webserver.url) {
                 ws = new WebSocket('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1]) 
@@ -420,11 +455,9 @@ let connect = () => {
                     </span>
                 `
 
-                document.getElementById('startBtn').innerHTML = '<i class="material-icons">stop</i> Stop mining'
-
                 document.getElementById('consoleAreaDiv').scrollIntoView(false)
 
-                document.getElementById('footer').innerHTML = '<span><i class="material-icons">done</i> Miner is online</span>'
+                msg.message('done', 'Miner is online', 'Miner')
             }
 
             ws.onclose = (event) => {
@@ -441,17 +474,9 @@ let connect = () => {
                 
                 console.log(message)
 
-                document.getElementById('consoleAreaDiv').innerHTML += `
-                    <span class="${colorText}">
-                    ${message} <br>
-                    </span>
-                `
+                msg.message('warning', 'Miner is offline', 'Miner')
 
-                document.getElementById('startBtn').innerHTML = '<i class="material-icons">play_arrow</i> Start mining'
-
-                document.getElementById('footer').innerHTML = '<span><i class="material-icons">error_outline</i> Miner is offline</span>'
-
-                document.getElementById('consoleAreaDiv').scrollIntoView(false)
+                clearAreas()
 
                 ws = null
             }
@@ -461,15 +486,9 @@ let connect = () => {
                 
                 console.log(message)
 
-                document.getElementById('consoleAreaDiv').innerHTML += `
-                    <span class="errorText">
-                    ${message} <br>
-                    </span>
-                `
+                msg.message('warning', message, 'Miner')
 
-                document.getElementById('consoleAreaDiv').scrollIntoView(false)
-
-                document.getElementById('footer').innerHTML = '<span><i class="material-icons">error_outline</i> ' + message + '</span>'
+                clearAreas()
             }
 
             ws.onmessage = (message) => {
@@ -507,13 +526,44 @@ let connect = () => {
                         case 'blocksWonUpdate':
                             wonBlock(reponse.blocksWon)
                             break
+                        case 1:
+                            minerConsole(response)
+                            break
+                        case 2:
+                            minerConsole(response)
+                            break
+                        case 3:
+                            minerConsole(response)
+                            break
+                        case 4:
+                            minerConsole(response)
+                            break
+                        case 5:
+                            minerConsole(response)
+                            break
+                        case 6:
+                            minerConsole(response)
+                            break
+                        case 7:
+                            minerConsole(response)
+                            break
+                        case 8:
+                            minerConsole(response)
+                            break
                         default:
-                            minerConsole(response.type)
+                            minerConsole(response)
                             break
                     }
                 }
             }
     }
 
+module.exports = {
+    
+    startWs: () => {
+        connect()
+    }
+
+}
 
 connect()

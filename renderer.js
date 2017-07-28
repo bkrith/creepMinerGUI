@@ -4,4 +4,3 @@
 
 require('./js/main.events.js')
 require('./js/dom.events.js')
-require('./js/socket.connection.js')

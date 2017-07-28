@@ -6,6 +6,7 @@ const dialogPolyfill    = require('dialog-polyfill')
 const killProcess       = require('./kill.process.js')
 const settings          = require('./settings/gui.conf.js')
 const acDetails         = require('./account.details.js')
+const ws                = require('./socket.connection.js')
 
 const dialogModal = document.querySelector('#minerPathDialog')
 if (! dialogModal.showModal) dialogPolyfill.registerDialog(dialogModal)
@@ -25,6 +26,14 @@ acDetails.fetchAcDetails()
 
 settings.getSettings()
 
+// Hide Information Div
+
+let infoTimer = setTimeout(() => {
+    console.log('hide')
+    document.getElementById('informationDiv').classList.add('hide')
+    clearTimeout(infoTimer)
+}, 20000)
+
 // Clear areas
 /*
 setTimeout(() => {
@@ -40,6 +49,8 @@ let clearAreas = () => {
     document.getElementById('minerArea').innerHTML = '<span></span>'
     
     document.getElementById('consoleAreaDiv').innerHTML = '<span></span>'
+
+    document.getElementById('logAreaDiv').innerHTML = '<span></span>'
     
     document.getElementById('winnersArea').innerHTML = '<span></span>'
 }
@@ -49,13 +60,14 @@ let clearAreas = () => {
 let startBtnProcess = () => {
     if (remote.getGlobal('settings').minerPath) {
         startBtn.innerHTML = '<i class="material-icons">stop</i> Stop mining'
-        startBtn.classList.remove('mdl-button--primary')
-        startBtn.classList.add('mdl-button--accent')
+        startBtn.classList.remove('greenButton')
+        startBtn.classList.add('redButton')
         startstop = 1
         remote.getGlobal('share').restart = false
         clearAreas()
         if (remote.getGlobal('share').pid == null) {
             startMiner()
+            ws.startWs()
         }
     }
     else {
@@ -70,8 +82,8 @@ let stopBtnProcess = (restart = false) => {
         startstop = 0
 
         startBtn.innerHTML = '<i class="material-icons">play_arrow</i> Start mining'
-        startBtn.classList.add('mdl-button--primary')
-        startBtn.classList.remove('mdl-button--accent')
+        startBtn.classList.add('greenButton')
+        startBtn.classList.remove('redButton')
 
         if (restart) {
             startBtnProcess()
@@ -116,10 +128,10 @@ let startMiner = () => {
 
     creepProcess.stderr.on('err', (err) => {
         //console.log(err.toString())
-    }) //stderr.pipe(process.stderr);
+    }) //stderr.pipe(process.stderr)
     creepProcess.stdout.on('data', (data) => {
         //console.log(data.toString())
-    }) //stdout.pipe(process.stdout);
+    }) //stdout.pipe(process.stdout)
 
     remote.getGlobal('share').pid = creepProcess.pid
 

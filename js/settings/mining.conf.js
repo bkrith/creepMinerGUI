@@ -2,6 +2,7 @@
 
 const remote    = require('electron').remote
 const fs        = require('fs')
+const fsAccess  = require('../fs.access.js')
 
 let setValues = (data) => {
     remote.getGlobal('conf').logging.config = data.logging.config
@@ -113,47 +114,23 @@ let setConfFormsValues = () => {
 module.exports = {
 
     getConf: () => {
-        try {
-            let confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("/")) + '/mining.conf'
-            if (remote.getGlobal('share').platform == 'win32') {
-				confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("\\")) + '\\mining.conf'
-			}
-				
-			fs.open(confFile, 'r', (err, fd) => {
-                if (err) console.log(err)
-                
-                fs.readFile(confFile, (err, data) => {
-                    if (err) console.log(err)
-                    setValues(JSON.parse(data))
-                })
-            });
-        } catch (err) {
-            //if error, then there was no settings file (first run).
-            console.log(err)
+        let confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("/")) + '/mining.conf'
+        if (remote.getGlobal('share').platform == 'win32') {
+			confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("\\")) + '\\mining.conf'
         }
+
+        fsAccess.get(confFile, 'Miner settings operations done', false).then((data) => {
+            setValues(data)
+        })
     },
 
-    setConf: () => {
-        try {
-            let confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("/")) + '/mining.conf'
-    		if (remote.getGlobal('share').platform == 'win32') {
-				confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("\\")) + '\\mining.conf'
-			}
-							
-            fs.open(confFile, 'r', (err, fd) => {
-                if (err) {
-                    console.log(err)
-                }
-                fs.writeFile(confFile, JSON.stringify(remote.getGlobal('conf'), null, 4), (err) => {
-                    if (err) console.log(err)
-
-                    remote.getGlobal('share').restart = false
-                })
-            });
-        } catch (err) {
-            //if error, then there was no settings file (first run).
-            console.log(err)
+    setConf: () => {    
+        let confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("/")) + '/mining.conf'
+    	if (remote.getGlobal('share').platform == 'win32') {
+			confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("\\")) + '\\mining.conf'
         }
+
+        fsAccess.set(confFile, remote.getGlobal('conf'), 'Miner settings operations done', false)
     }
 
 }

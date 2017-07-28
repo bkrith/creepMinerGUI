@@ -1,10 +1,14 @@
 'use strinct'
 
-const remote    = require('electron').remote
-const acDetails = require('../account.details.js')
-const fs        = require('fs')
+const remote            = require('electron').remote
+const acDetails         = require('../account.details.js')
+const dialogPolyfill    = require('dialog-polyfill')
+const fsAccess          = require('../fs.access.js')
 
-const confSettings = require('./mining.conf.js')
+const minerSettings = require('./mining.conf.js')
+
+const wizardDialogModal = document.querySelector('#wizardDialog')
+if (! wizardDialogModal.showModal) dialogPolyfill.registerDialog(wizardDialogModal)
 
 let setValues = (data) => {
     remote.getGlobal('settings').minerPath = data.minerPath
@@ -12,12 +16,19 @@ let setValues = (data) => {
     remote.getGlobal('settings').acDetailsBurst = data.acDetailsBurst
     remote.getGlobal('settings').acDetailsNumeric = data.acDetailsNumeric
     remote.getGlobal('settings').acDetailsPendingJson = data.acDetailsPendingJson
+    remote.getGlobal('settings').tray = data.tray
+    remote.getGlobal('settings').firstTime = data.firstTime
+
+    
+    if (remote.getGlobal('settings').firstTime) {
+        wizardDialogModal.showModal()
+    }
 
     setFormsValues()
     
     acDetails.fetchAcDetailsOnceOnly()
 
-    confSettings.getConf()
+    minerSettings.getConf()
 }
 
 let setFormsValues = () => {
@@ -25,6 +36,11 @@ let setFormsValues = () => {
         document.getElementById('fldMinerPath').parentElement.MaterialTextfield.change(remote.getGlobal('settings').minerPath)
         document.getElementById('fldMinerPathModal').parentElement.MaterialTextfield.change(remote.getGlobal('settings').minerPath)
     }
+
+    if (remote.getGlobal('settings').tray) document.getElementById('fldTrayIcon').parentElement.MaterialCheckbox.check()
+    else document.getElementById('fldTrayIcon').parentElement.MaterialCheckbox.uncheck()
+
+    document.getElementById('myWalletBurst').innerHTML = remote.getGlobal('settings').acDetailsBurst
 
     document.getElementById('acDetailsWallet').parentElement.MaterialTextfield.change(remote.getGlobal('settings').acDetailsWallet)
     document.getElementById('acDetailsBurst').parentElement.MaterialTextfield.change(remote.getGlobal('settings').acDetailsBurst)
@@ -35,53 +51,14 @@ let setFormsValues = () => {
 module.exports = {
 
     getSettings: () => {
-        try {
-            //test to see if settings exist
-            fs.open('appSettings.json', 'r', (err, fd) => {
-                if (err) {
-                    if (err.code === 'ENOENT') {
-                        fs.writeFile('appSettings.json', JSON.stringify(remote.getGlobal('settings'), null, 4), (err) => {
-                            console.log(err)
-                        })
-                        return
-                    }
-                    else {
-                        console.log(err)
-                    }
-                }
-                
-                fs.readFile('appSettings.json', (err, data) => {
-                    if (err) console.log(err)
-                    setValues(JSON.parse(data))
-                })
-            });
-        } catch (err) {
-            //if error, then there was no settings file (first run).
-            console.log(err)
-        }
+        fsAccess.get('gui.conf', 'GUI settings operations done', true).then((data) => {
+            setValues(data)
+            return data
+        })
     },
 
     setSettings: () => {
-        try {
-            //test to see if settings exist
-            fs.open('appSettings.json', 'r', (err, fd) => {
-                if (err) {
-                    console.log(err)
-                }
-                
-                fs.writeFile('appSettings.json', JSON.stringify(remote.getGlobal('settings'), null, 4), (err) => {
-                    if (err) console.log(err)
-                    
-                    remote.getGlobal('share').restart = false
-
-                    acDetails.fetchAcDetailsOnce()
-
-                })
-            });
-        } catch (err) {
-            //if error, then there was no settings file (first run).
-            console.log(err)
-        }
+        fsAccess.set('gui.conf', remote.getGlobal('settings'), 'GUI settings operations done', true)
     }
 
 }

@@ -1,6 +1,6 @@
 {
   "name": "creepMinerGUI",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A gui application for amazing Creepsky's miner - creepMiner",
   "main": "main.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "chart.js": "^2.6.0",
     "dialog-polyfill": "^0.4.7",
     "material-design-lite": "^1.3.0",
+    "mz": "^2.6.0",
     "ps-tree": "^1.1.0"
   }
 }

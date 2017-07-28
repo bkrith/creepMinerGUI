@@ -1,6 +1,7 @@
 'use strict'
 
-const remote = require('electron').remote
+const remote    = require('electron').remote
+const msg       = require('./message.js')
 
 let fetchOnly = false
 
@@ -41,6 +42,8 @@ let fetchAccountDetails = () => {
 
     let poolPendingJson = remote.getGlobal('settings').acDetailsPendingJson
 
+    msg.message('autorenew', 'Wallet refreshing...', 'Wallet')
+
     if (wallet && walletAccount && numericAccount && poolPendingJson) {
         fetch(wallet + walletParms + walletAccount)
             .then(res => res.json())
@@ -56,18 +59,21 @@ let fetchAccountDetails = () => {
 
                         document.getElementById('pendingMainNum').innerHTML = addPeriodOfThousands(pendingAmount.toString().split('.')[0])
                         document.getElementById('pendingDecNum').innerHTML = pendingAmount.toString().split('.')[1].substr(0, 8)
-                        // document.getElementById('acDetails').innerHTML = 'Balance: <strong>' + accountBalance + '</strong> | Pending: <strong>' + pendingAmount + '</strong>'
+                        
+                        msg.message('done', 'Wallet ok', 'Wallet')
+
+                        document.getElementById('renewWalletInfo').classList.remove('hide')
                     })
                     .catch(err => {
                         console.log(err)
-                        console.log('Pending JSON url is wrong or down!')
-                        document.getElementById('footer').innerHTML = '<span><i class="material-icons">error_outline</i> Pending JSON url is wrong or down!</span>'
+                        msg.message('warning', err, 'Wallet')
+                        document.getElementById('renewWalletInfo').classList.remove('hide')
                     })
             })
             .catch(err => {
                 console.log(err)
-                console.log('Your wallet infos are wrong or your wallet is offline!')
-                document.getElementById('footer').innerHTML = '<span><i class="material-icons">error_outline</i> Your wallet infos are wrong or your wallet is offline!</span>'
+                msg.message('warning', err, 'Wallet')
+                document.getElementById('renewWalletInfo').classList.remove('hide')
             })
     }
 }

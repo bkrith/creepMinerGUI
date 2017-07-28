@@ -2,6 +2,7 @@ const { app, BrowserWindow, Tray, Menu }  = require('electron')
 
 const remote                              = require('electron').remote
 const killProcess                         = require('./js/kill.process.js')
+const fs                                  = require('mz/fs')
 
 const path                                = require('path')
 const url                                 = require('url')
@@ -20,7 +21,9 @@ global.settings = {
   acDetailsWallet: '',
   acDetailsBurst: '',
   acDetailsNumeric: '',
-  acDetailsPendingJson: ''
+  acDetailsPendingJson: '',
+  tray: false,
+  firstTime: true
 }
 
 global.conf = {
@@ -85,84 +88,109 @@ global.conf = {
 
 let iconPath = ''
 
-let mainWindow
+let curTray = false
+
+let mainWindow = null
 
 let createWindow = () => {
-  // Create the browser window.
-  if (process.platform == 'linux') {
-    iconPath = __dirname + '/cmgui.png'
-	global.share.platform = 'linux'
-  }
-  else if (process.platform == 'win32') {
-    iconPath = __dirname + '/cmgui.ico'
-	global.share.platform = 'win32'
-  }
-  else {
-    iconPath = __dirname + '/cmgui.icns'
-	  global.share.platform = 'darwin'
-  }
-
-  mainWindow = new BrowserWindow({width: 1200, height: 700, icon: iconPath})
-
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
-
-  // mainWindow.webContents.openDevTools()
-
-    let tray = new Tray(iconPath)
-
-    let contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Show CreepMiner GUI', click: () => {
-          mainWindow.show()
-        }
-      }, {
-        label: 'DevTools', click: () => {
-          mainWindow.webContents.openDevTools()
-        }
-      }, {
-        label: 'Quit', click: () => {
-          app.isQuiting = true
-          app.quit()
-        }
-      }
-    ])
-
-    tray.setToolTip('CreepMiner GUI by Vassilis')
-
-    tray.setContextMenu(contextMenu)
-
-  mainWindow.on('minimize', (event) => {
-    event.preventDefault()
-    mainWindow.hide()
-  })
-
-  mainWindow.on('show', () => {
-    tray.setHighlightMode('always')
-  })
-
-  mainWindow.on('close', (event) => {
-    if (!app.isQuiting) {
-      event.preventDefault()
-      mainWindow.hide()
+  fs.readFile('./gui.conf', 'utf8').then((data) => {
+    curTray = JSON.parse(data).tray
+    
+    // Create the browser window.
+    if (process.platform == 'linux') {
+      iconPath = __dirname + '/cmgui.png'
+    global.share.platform = 'linux'
+    }
+    else if (process.platform == 'win32') {
+      iconPath = __dirname + '/cmgui.ico'
+    global.share.platform = 'win32'
+    }
+    else {
+      iconPath = __dirname + '/cmgui.icns'
+      global.share.platform = 'darwin'
     }
 
-    return false
+    mainWindow = new BrowserWindow({
+      width: 1030, 
+      height: 550, 
+      minWidth: 910,
+      minHeight: 400,
+      icon: iconPath
+    })
+
+    // and load the index.html of the app.
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+
+    // mainWindow.webContents.openDevTools()
+
+      let tray = null
+      
+      if (curTray) {
+        tray = new Tray(iconPath)
+
+        let contextMenu = Menu.buildFromTemplate([
+          {
+            label: 'Show CreepMiner GUI', click: () => {
+              mainWindow.show()
+            }
+          }, {
+            label: 'DevTools', click: () => {
+              mainWindow.webContents.openDevTools()
+            }
+          }, {
+            label: 'Quit', click: () => {
+              app.isQuiting = true
+              app.quit()
+            }
+          }
+        ])
+
+        tray.setToolTip('CreepMiner GUI by Vassilis')
+
+        tray.setContextMenu(contextMenu)
+      }
+
+    mainWindow.on('minimize', (event) => {
+      if (curTray) {
+        event.preventDefault()
+        mainWindow.hide()
+      }
+    })
+
+    mainWindow.on('show', () => {
+      if (curTray) {
+        tray.setHighlightMode('always')
+      }
+    })
+
+    mainWindow.on('close', (event) => {
+      if (!app.isQuiting && curTray) {
+        event.preventDefault()
+        mainWindow.hide()
+      }
+
+      return false
+    })
+
+    mainWindow.on('closed', () => {
+      killProcess.kill(global.share.pid)
+      killProcess.kill(global.share.walletid)
+
+      mainWindow = null
+    })
   })
-
-  mainWindow.on('closed', () => {
-    killProcess.kill(global.share.pid)
-    killProcess.kill(global.share.walletid)
-
-    mainWindow = null
+  .catch((err) => {
+    console.log(err)
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -181,3 +209,4 @@ app.on('activate', () => {
     createWindow()
   }
 })
+

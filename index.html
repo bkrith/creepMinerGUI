@@ -14,7 +14,7 @@
     <div class="wrapper">
       <div id="header">
         <div class="insideHeader left">
-          Your wallet: <strong>BURST-YY7Z-K8KK-E2B9-AKQCQ</strong><br>
+          Your wallet: <strong id="myWalletBurst">-</strong><br>
           Miner is on block: <strong id="nowBlockInfo">-</strong><br>
           Best deadline in current round: <strong id="nowDlInfo">-</strong>
         </div>
@@ -29,6 +29,7 @@
             <i class="material-icons">account_balance_wallet</i>
           </div>
         </div>
+        <div id="renewWalletInfo"><a href="#"><i class="material-icons">autorenew</i></a></div>
       </div>
       <div class="mainWrapper">
         <div id="sideBar">
@@ -47,13 +48,22 @@
           <button id="setBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
             <i class="material-icons">settings</i><br>Settings
           </button>
+          <button id="logBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">code</i><br>Log
+          </button>
         </div>
         <div id="mainContent">
           <div id="minerArea" class="hide"></div>
           <div id="consoleArea" class="hide">
             <div id="consoleAreaDiv"></div>
           </div>
+          <div id="logArea" class="hide">
+            <div id="logAreaDiv"></div>
+          </div>
           <div id="infoArea">
+            <div id="informationDiv">
+              <strong>If you like this app, please make a donation to Creepsky(author of creepMiner) BURST-8E8K-WQ2F-ZDZ5-FQWHX and to Vassilis(author of html5 gui app) BURST-YY7Z-K8KK-E2B9-AKQCQ</strong>
+            </div>
             <div class="infoHeader">
               <div class="left highscores">
                 <strong>Highscores</strong><br>
@@ -77,10 +87,11 @@
                 Submission retry: <strong id="submissionRetry" class="right"></strong>
               </div>
               <div class="startBtnDiv right">
-                <button id="startBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect">
-                  <i class="material-icons">play_arrow</i> Start mining
-                </button><br>
-                (not recommended)
+                <div>
+                  <button id="startBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton">
+                    <i class="material-icons">play_arrow</i> Start mining
+                  </button>
+                </div>
               </div>
             </div>
             <div id="nowBlock"></div>
@@ -90,9 +101,6 @@
           </div>
           <div id="winnersArea" class="hide"></div>
           <div id="settingsArea" class="hide">
-
-
-
             <main class="mdl-layout__content mainTabs">    
               <div class="mdl-tabs mdl-js-tabs">
                   <div class="mdl-tabs__tab-bar">
@@ -112,6 +120,18 @@
                           <button class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect" id="selectMinerBtn">
                               ...
                           </button>
+                          <label id="checkTrayIcon" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldTrayIcon">
+                            <input type="checkbox" id="fldTrayIcon" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">Tray icon (Restart the application)</span>
+                          </label>
+                          <div class="btnGroupGeneral">
+                          <button id="backupBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton right">
+                            <i class="material-icons">save</i> Backup
+                          </button>
+                          <button id="restoreBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton right">
+                            <i class="material-icons">restore</i> Restore
+                          </button>
+                          </div>
                       </div>
                     </div>
                   </div>
@@ -255,7 +275,7 @@
                           </div>
                           <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                             <input class="mdl-textfield__input" type="text" id="fldWalletRequestTries" pattern="-?[0-9]*(\.[0-9]+)?">
-                            <label class="mdl-textfield__label" for="fldWalletRequestTries">fldWalletRequestTries</label>
+                            <label class="mdl-textfield__label" for="fldWalletRequestTries">WalletRequestTries</label>
                           </div>
                       </div>
                     </div>
@@ -362,14 +382,6 @@
                   </div>
               </div>
             </main>
-
-
-
-
-
-
-
-
           </div>
         </div>
       </div>
@@ -378,12 +390,17 @@
       <div id="progressBar" class="mdl-progress mdl-js-progress"></div>
       <script>
         document.querySelector('#progressBar').addEventListener('mdl-componentupgraded', function() {
-          this.MaterialProgress.setProgress(0);
-        });
+          this.MaterialProgress.setProgress(0)
+        })
       </script>
 
       <div id="footer">
-        <span id="statusFooter"></span>
+        <span id="statusFooter">
+          <span id="statusMiner"></span>
+          <span id="statusWallet"></span>
+          <span id="statusSettings"></span>
+          <span id="statusGeneral"></span>
+        </span>
       </div>
     </div>
 
@@ -403,6 +420,48 @@
       </div>
       <div class="mdl-dialog__actions">
         <button id="minerPathDialogBtn" type="button" class="mdl-button">OK</button>
+      </div>
+    </dialog>
+
+    <!-- Wizard Dialog -->
+    <dialog id="wizardDialog" class="mdl-dialog fullwidth80">
+      <div class="mdl-dialog__content">
+                    <strong>First time setup Wizard</strong>
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div><strong>1. Your creepMiner executable file path</strong></div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label fullwidth80">
+                              <input class="mdl-textfield__input" type="text" id="fldMinerPathd">
+                              <label class="mdl-textfield__label" for="fldMinerPathd">Miner executable file path</label>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div><strong>2. Your wallet info</strong></div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsWalletd">
+                              <label class="mdl-textfield__label" for="acDetailsWalletd">Wallet URL</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsBurstd">
+                              <label class="mdl-textfield__label" for="acDetailsBurstd">BURST Account</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsNumericd" pattern="-?[0-9]*(\.[0-9]+)?">
+                              <label class="mdl-textfield__label" for="acDetailsNumericd">Numeric Account</label>
+                          </div>
+                          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                              <input class="mdl-textfield__input" type="text" id="acDetailsPendingJsond">
+                              <label class="mdl-textfield__label" for="acDetailsPendingJsond">Pending JSON Feed</label>
+                          </div>
+                      </div>
+                    </div>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button id="wizardDialogBtn" type="button" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton"><i class="material-icons">save</i> Save settings</button>
+        <button id="wizardDialogCancelBtn" type="button" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect redButton"><i class="material-icons">cancel</i> Cancel</button>
+        <button id="wizardDialogHideBtn" type="button" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect blueButton"><i class="material-icons">visibility_off</i> Never show again</button>
       </div>
     </dialog>
   </body>
