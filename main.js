@@ -148,7 +148,7 @@ let createWindow = () => {
       slashes: true
     }))
 
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
 
       let tray = null
       
