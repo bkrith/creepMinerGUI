@@ -1,3 +1,19 @@
+<!--
+CreepMinerGUI - Frontend for Creepskys creepMiner - based on web interface of creepMiner 
+Copyright (C) 2017 Vassilis Kritharakis
+
+This program is free software: you can redistribute it and/or modify it under the terms of 
+the GNU General Public License as published by the Free Software Foundation, either version 
+3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. 
+If not, see <http://www.gnu.org/licenses/>.
+-->
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -7,7 +23,6 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="node_modules/material-design-lite/material.min.css">
-    <script src="node_modules/material-design-lite/material.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   </head>
   <body>
@@ -51,8 +66,24 @@
           <button id="logBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
             <i class="material-icons">code</i><br>Log
           </button>
+          <button id="creditBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect sideButton">
+            <i class="material-icons">copyright</i><br>Credits
+          </button>
         </div>
         <div id="mainContent">
+          <div id="creditArea" class="hide">
+            <div id="creditDiv">
+              <strong><strong>If you like this app, please make a donation to the Authors</strong>
+              <br><br>
+              <strong>Author of creepMinerGUI application - Frontend for creepMiner</strong><br>
+              Vassilis<br>
+              Burst Wallet: BURST-YY7Z-K8KK-E2B9-AKQCQ
+              <br><br><br>
+              <strong>Author of creepMiner</strong><br>
+              Creepsky<br>
+              Burst Wallet: BURST-JBKL-ZUAV-UXMB-2G795
+            </div>
+          </div>
           <div id="minerArea" class="hide"></div>
           <div id="consoleArea" class="hide">
             <div id="consoleAreaDiv"></div>
@@ -63,6 +94,21 @@
           <div id="infoArea">
             <div id="informationDiv">
               <strong>If you like this app, please make a donation to Creepsky(author of creepMiner) BURST-8E8K-WQ2F-ZDZ5-FQWHX and to Vassilis(author of html5 gui app) BURST-YY7Z-K8KK-E2B9-AKQCQ</strong>
+            </div>
+            <div class="startBtnDiv">
+                  <button id="startBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton right">
+                    <i class="material-icons">play_arrow</i> Start mining
+                  </button>
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="startOption">
+                    <input type="radio" id="startOption" class="mdl-radio__button" name="options" value="1" checked>
+                    <span class="mdl-radio__label">Start new miner</span>
+                  </label>
+                  <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect left" for="wsUrlOption">
+                      <input type="radio" id="wsUrlOption" class="mdl-radio__button" name="options" value="2">
+                    </label>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label left wsUrlDiv" id="wsUrlDiv">
+                    <input class="mdl-textfield__input" type="text" id="fldWsUrl" placeholder="ws URL">
+                  </div>
             </div>
             <div class="infoHeader">
               <div class="left highscores">
@@ -85,13 +131,6 @@
                 Plot readers: <strong id="plotReaders" class="right"></strong><br>
                 Mining intensity: <strong id="miningIntensity" class="right"></strong><br>
                 Submission retry: <strong id="submissionRetry" class="right"></strong>
-              </div>
-              <div class="startBtnDiv right">
-                <div>
-                  <button id="startBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton">
-                    <i class="material-icons">play_arrow</i> Start mining
-                  </button>
-                </div>
               </div>
             </div>
             <div id="nowBlock"></div>
@@ -123,6 +162,14 @@
                           <label id="checkTrayIcon" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldTrayIcon">
                             <input type="checkbox" id="fldTrayIcon" class="mdl-checkbox__input">
                             <span class="mdl-checkbox__label">Tray icon (Restart the application)</span>
+                          </label>
+                          <label id="checkSound" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldSound">
+                            <input type="checkbox" id="fldSound" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">Sound alarm on new block</span>
+                          </label>
+                          <label id="checkNotification" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="fldNotification">
+                            <input type="checkbox" id="fldNotification" class="mdl-checkbox__input">
+                            <span class="mdl-checkbox__label">Notifications</span>
                           </label>
                           <div class="btnGroupGeneral">
                           <button id="backupBtn" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton right">
@@ -404,6 +451,10 @@
       </div>
     </div>
 
+    <div id="loaderDiv">
+      <span>Loading...</span>
+    </div>
+
     <!-- Miner Path Dialog -->
     <dialog id="minerPathDialog" class="mdl-dialog fullwidth80">
       <h4 class="mdl-dialog__title">Missing miner executable file path</h4>
@@ -457,6 +508,14 @@
                           </div>
                       </div>
                     </div>
+                    <div class="blockCard">
+                      <div class="blockCardInfo">
+                          <div>
+                            <strong>To start your miner through this application you must set the executable file path in Settings -> General.<br>For example: "C:\creepminer\run.bat"</strong>
+                            <br>
+                            <strong>Don't worry if this dialog disappear! Always you can set your personal informations from menu Settings -> Account and the miner path from menu Settings -> General</strong></div>
+                      </div>
+                    </div>
       </div>
       <div class="mdl-dialog__actions">
         <button id="wizardDialogBtn" type="button" class="mdl-button mdl-js-button mdl-button--primary mdl-js-ripple-effect greenButton"><i class="material-icons">save</i> Save settings</button>
@@ -466,8 +525,10 @@
     </dialog>
   </body>
 
+  <script src="node_modules/material-design-lite/material.min.js"></script>
   <script>
     // You can also require other files to run in this process
+    
     require('./renderer.js')
 </script>
 

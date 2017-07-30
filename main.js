@@ -1,6 +1,23 @@
+/*
+CreepMinerGUI - Frontend for Creepskys creepMiner - based on web interface of creepMiner 
+Copyright (C) 2017 Vassilis Kritharakis
+
+This program is free software: you can redistribute it and/or modify it under the terms of 
+the GNU General Public License as published by the Free Software Foundation, either version 
+3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. 
+If not, see <http://www.gnu.org/licenses/>.
+*/
+
 const { app, BrowserWindow, Tray, Menu }  = require('electron')
 
 const remote                              = require('electron').remote
+const ipcMain                             = require('electron').ipcMain
 const killProcess                         = require('./js/kill.process.js')
 const fs                                  = require('mz/fs')
 
@@ -13,7 +30,8 @@ global.share = {
   restart: false,
   lastBlock: null,
   lastWinner: null,
-  platform: null
+  platform: null,
+  connectType: null
 }
 
 global.settings = {
@@ -23,7 +41,11 @@ global.settings = {
   acDetailsNumeric: '',
   acDetailsPendingJson: '',
   tray: false,
-  firstTime: true
+  firstTime: true,
+  sound: true,
+  width: 1100,
+  height: 700,
+  notification: true
 }
 
 global.conf = {
@@ -92,6 +114,7 @@ let curTray = false
 
 let mainWindow = null
 
+
 let createWindow = () => {
   fs.readFile('./gui.conf', 'utf8').then((data) => {
     curTray = JSON.parse(data).tray
@@ -111,8 +134,8 @@ let createWindow = () => {
     }
 
     mainWindow = new BrowserWindow({
-      width: 1030, 
-      height: 550, 
+      width: JSON.parse(data).width, 
+      height: JSON.parse(data).height, 
       minWidth: 910,
       minHeight: 400,
       icon: iconPath
@@ -125,7 +148,7 @@ let createWindow = () => {
       slashes: true
     }))
 
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
 
       let tray = null
       
@@ -167,6 +190,21 @@ let createWindow = () => {
       }
     })
 
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.send('loadedInfo', {
+        msg: 'loaded'
+      })
+    })
+
+    mainWindow.on('resize', () => {
+      settings.width = BrowserWindow.getFocusedWindow().getSize()[0]
+      settings.height = BrowserWindow.getFocusedWindow().getSize()[1]
+        mainWindow.webContents.send('resizeInfo', {
+          width: BrowserWindow.getFocusedWindow().getSize()[0],
+          height: BrowserWindow.getFocusedWindow().getSize()[1]
+        })
+    })
+
     mainWindow.on('close', (event) => {
       if (!app.isQuiting && curTray) {
         event.preventDefault()
@@ -177,6 +215,25 @@ let createWindow = () => {
     })
 
     mainWindow.on('closed', () => {
+      fs.open('gui.conf', 'r').then((fd) => {
+        fs.writeFile('gui.conf', JSON.stringify(global.settings, null, 4))
+        .catch((err) => {
+            console.log(err)
+        })
+      })
+      .catch((err) => {
+          if (err.code === 'ENOENT') {
+              fs.writeFile('gui.conf', JSON.stringify(global.settings, null, 4))
+              .catch((err) => {
+                  console.log(err)
+              })
+          }
+          else {
+              console.log(err)
+          }
+      })
+
+
       killProcess.kill(global.share.pid)
       killProcess.kill(global.share.walletid)
 

@@ -1,11 +1,31 @@
+/*
+CreepMinerGUI - Frontend for Creepskys creepMiner - based on web interface of creepMiner 
+Copyright (C) 2017 Vassilis Kritharakis
+
+This program is free software: you can redistribute it and/or modify it under the terms of 
+the GNU General Public License as published by the Free Software Foundation, either version 
+3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. 
+If not, see <http://www.gnu.org/licenses/>.
+*/
+
 'use strict'
 
 const { shell, remote } = require('electron')
 const msg               = require('./message.js')
+const notifier          = require('node-notifier')
+const path              = require('path')
 
 require('chart.js')
 
 let ws = null
+let connectTimout = null
+let normalClose = false
 
 let lastBlock = null
 let thisBlockBest = null
@@ -14,8 +34,18 @@ let confirmedDeadlines = 0
 let nowDlInfo = ''
 let nowDlInfoSec = 0
 
+let blockTime = 0
+
+let notifyInfo = {
+    title: '',
+    message: ''
+}
+
 let ctx = document.getElementById("myChart").getContext('2d')
 let myChart = new Chart(ctx)
+
+let confirmedSound = new Audio(__dirname + '/../sounds/sms-alert-1-daniel_simon.mp3')
+confirmedSound.volume = 0.5
 
 let newBlock = (block) => {
     //if (!lastBlock) {
@@ -27,6 +57,8 @@ let newBlock = (block) => {
         
         nowDlInfo = ''
         nowDlInfoSec = 0
+
+        blockTime = block.time
 
         document.getElementById('nowDlInfo').innerHTML = '-'
 
@@ -69,6 +101,9 @@ let newBlock = (block) => {
             </span>
         `
 
+        notifyInfo.title = 'Block #' + block.block
+        notifyInfo.message = ''
+
         // getBlockRows(block.bestDeadlines)
         createChart(getBlockRows(block.bestDeadlines), getDeadlinesRows(block.bestDeadlines))
 
@@ -84,6 +119,10 @@ let newBlock = (block) => {
         document.getElementById('consoleAreaDiv').scrollIntoView(false)
 
         remote.getGlobal('share').lastBlock = `block_${block.block}`
+
+        // msg.message('done', 'Mining new block: #' + block.block, 'Miner')
+
+        if (remote.getGlobal('settings').sound) confirmedSound.play()
     }
 }
 
@@ -104,7 +143,11 @@ let getDeadlinesRows = (table) => {
 }
 
 let nonceFound = (deadline) => {
+    // If is hack to stop duplicate nonce found
+    if (!document.getElementById(`nonce_${deadline.nonce}`)) {
     //if (lastBlock > 1) {
+        let timeDif = reverseTimeFormat(deadline.time) - reverseTimeFormat(blockTime)
+
         document.getElementById(`card-dlsAreaBlock_${lastBlock}`).innerHTML += `
             <div class="mdl-list__item warning" id="nonce_${deadline.nonce}">
                 <span class="mdl-list__item-primary-content">
@@ -129,7 +172,10 @@ let nonceFound = (deadline) => {
             <span class="warningText">
             ${deadline.time}: ${deadline.account}: nonce found (${deadline.deadline} - ${deadline.deadlineNum}) <br>
             ${deadline.time}: <span class="spaceSpan">nonce: ${deadline.nonce}</span> <br>
-            ${deadline.time}: <span class="spaceSpan">in ${deadline.plotfile}</span> <br>
+            ${deadline.time}: <span class="spaceSpan">in ${deadline.plotfile} </span> <br>
+            </span>
+            <span class="newText">
+            ${deadline.time}: <span class="spaceSpan">${deadline.plotfile} read in ${timeDif}s </span> <br>
             </span>
         `
 
@@ -139,6 +185,7 @@ let nonceFound = (deadline) => {
 
         remote.getGlobal('share').lastBlock = `block_${lastBlock}`
     //}
+    }
 }
 
 let addOrConfirm = (deadline) => {
@@ -183,6 +230,8 @@ let addOrConfirm = (deadline) => {
             ${deadline.time}: <span class="spaceSpan">in ${deadline.plotfile}</span> <br>
             </span>
         `
+
+        notifyInfo.message += 'Nonce confirmed ' + deadline.deadline + ' - ' + deadline.deadlineNum + '\n'
         
         remote.getGlobal('share').lastBlock = `block_${lastBlock}`
     //}
@@ -261,6 +310,16 @@ let config = (cfg) => {
 
 let setProgress = (percentage = null) => {
     if (percentage) document.getElementById('progressBar').MaterialProgress.setProgress(percentage)
+    if (percentage == 100 && remote.getGlobal('settings').notification) {
+        if (notifyInfo.message == '') notifyInfo.message = 'No deadlines'
+        notifier.notify({
+            title: notifyInfo.title,
+            message: notifyInfo.message,
+            icon: path.join(__dirname, '/../block.png'),
+            sound: true,
+            wait: false
+        })
+    }
 }
 
 let lastWinner = (winner) => {
@@ -307,8 +366,7 @@ let wonBlock = (blocksWon) => {
 }
 
 let minerConsole = (data) => {
-    console.log(data)
-    msg.message('warning', JSON.stringify(data), 'Miner')
+    if (data) msg.message('warning', JSON.stringify(data), 'Miner')
 }
 
 let createChart = (blocks, deadlines) => {
@@ -428,14 +486,23 @@ let clearAreas = () => {
 }
 
 let connect = () => {
+            let wsUrl = null
+
             if (ws) {
-                ws.close(3001)
+                ws.close()
                 clearAreas()
             }
         
-            if (remote.getGlobal('conf').webserver.url) {
-                ws = new WebSocket('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1]) 
+            if (remote.getGlobal('share').connectType) {
+                wsUrl = remote.getGlobal('share').connectType
             }
+            else {
+                wsUrl = 'ws://' + remote.getGlobal('conf').webserver.url.split('//')[1]
+            }
+
+            ws = new WebSocket(wsUrl)
+
+            /*
             else {
                 setTimeout(() => {
                     connect()
@@ -443,8 +510,17 @@ let connect = () => {
 
                 return
             }
+            */
 
             ws.onopen = (event) => {
+                lastBlock = null
+                thisBlockBest = null
+                bestDeadlineOverall = null
+                confirmedDeadlines = 0
+                nowDlInfo = ''
+                nowDlInfoSec = 0
+                blockTime = 0
+
                 let message = 'Connection with miner established!'
 
                 console.log(message)
@@ -463,22 +539,37 @@ let connect = () => {
             ws.onclose = (event) => {
                 let message = 'Connection with miner closed'
                 let colorText = 'successText'
-                if (event.code != 3001) {
+                
+                if (!normalClose) {
                     message = 'Something close the connection with error! Im trying to recconect..'
                     colorText = 'errorText'
 
-                    setTimeout(() => {
-                        connect()
+                    connectTimout = setTimeout(() => {
+                        if (!normalClose) {
+                            connect()
+                        }
+                        else {
+                            normalClose = false
+                            clearTimeout(connectTimout)
+                        }
                     }, 5000)
+                }
+                else {
+                    normalClose = false
+                    message = 'Miner is offline'
+                    colorText = 'errorText'
+                    clearTimeout(connectTimout)
+                    clearAreas()
+                    ws = null
+                }
+
+                if (normalClose) {
+                    clearTimeout(connectTimout)
                 }
                 
                 console.log(message)
 
-                msg.message('warning', 'Miner is offline', 'Miner')
-
-                clearAreas()
-
-                ws = null
+                msg.message('warning', message, 'Miner')
             }
 
             ws.onerror = (event) => {
@@ -562,8 +653,14 @@ module.exports = {
     
     startWs: () => {
         connect()
+    },
+
+    stopWs: () => {
+        console.log('Normal close')
+        if (ws) {
+            normalClose = true
+            ws.close()
+        }
     }
 
 }
-
-connect()

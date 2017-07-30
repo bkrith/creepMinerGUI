@@ -1,15 +1,37 @@
+/*
+CreepMinerGUI - Frontend for Creepskys creepMiner - based on web interface of creepMiner 
+Copyright (C) 2017 Vassilis Kritharakis
+
+This program is free software: you can redistribute it and/or modify it under the terms of 
+the GNU General Public License as published by the Free Software Foundation, either version 
+3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. 
+If not, see <http://www.gnu.org/licenses/>.
+*/
+
 'use strict'
 
-const remote        = require('electron').remote
-const minerSettings = require('./settings/mining.conf.js')
-const settings      = require('./settings/gui.conf.js')
-const acDetails     = require('./account.details.js')
-const msg           = require('./message.js')
-const fsAccess      = require('./fs.access.js')
+const remote            = require('electron').remote
+const minerSettings     = require('./settings/mining.conf.js')
+const settings          = require('./settings/gui.conf.js')
+const acDetails         = require('./account.details.js')
+const msg               = require('./message.js')
+const fsAccess          = require('./fs.access.js')
+const dialogPolyfill    = require('dialog-polyfill')
 
 const wizardDialogModal = document.querySelector('#wizardDialog')
 if (! wizardDialogModal.showModal) dialogPolyfill.registerDialog(wizardDialogModal)
 
+
+// Some init sets
+
+    document.getElementById('fldWsUrl').disabled = true
+    document.getElementById('fldWsUrl').value = ('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1])    
 
 // Element to Bottom
 
@@ -20,6 +42,16 @@ let gotoBottom = () => {
    document.getElementById('logAreaDiv').scrollIntoView(false)
 }
 
+document.getElementById('startOption').addEventListener('click', () => {
+    document.getElementById('fldWsUrl').disabled = true
+    remote.getGlobal('share').connectType = null
+})
+
+document.getElementById('wsUrlOption').addEventListener('click', () => {
+    document.getElementById('fldWsUrl').disabled = false
+    remote.getGlobal('share').connectType = document.getElementById('fldWsUrl').value
+})
+
 document.getElementById('renewWalletInfo').addEventListener('click', () => {
     document.getElementById('renewWalletInfo').classList.add('hide')
     acDetails.fetchAcDetailsOnce()
@@ -27,6 +59,7 @@ document.getElementById('renewWalletInfo').addEventListener('click', () => {
 
 document.getElementById('wizardDialogBtn').addEventListener('click', () => {
     remote.getGlobal('settings').firstTime = false
+    remote.getGlobal('settings').minerPath = document.getElementById('fldMinerPathd').value
     remote.getGlobal('settings').acDetailsWallet = document.getElementById('acDetailsWalletd').value
     remote.getGlobal('settings').acDetailsNumeric = document.getElementById('acDetailsNumericd').value
     remote.getGlobal('settings').acDetailsBurst = document.getElementById('acDetailsBurstd').value
@@ -38,6 +71,10 @@ document.getElementById('wizardDialogBtn').addEventListener('click', () => {
 		confFile = document.getElementById('fldMinerPathd').value.substring(0, document.getElementById('fldMinerPathd').value.lastIndexOf("\\")) + '\\mining.conf'
     }
     fsAccess.backupMiningConf(confFile)
+
+    acDetails.fetchAcDetailsOnce()
+
+    document.getElementById('myWalletBurst').innerHTML = remote.getGlobal('settings').acDetailsBurst
     
     wizardDialogModal.close()
 })
@@ -90,6 +127,7 @@ document.getElementById('minerBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.add('hide')
         document.getElementById('settingsArea').classList.add('hide')
         document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.add('sideButtonActive')
         document.getElementById('infoBtn').classList.remove('sideButtonActive')
@@ -97,6 +135,7 @@ document.getElementById('minerBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.remove('sideButtonActive')
         document.getElementById('setBtn').classList.remove('sideButtonActive')
         document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
 
         gotoBottom()
 })
@@ -108,6 +147,7 @@ document.getElementById('infoBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.add('hide')
         document.getElementById('settingsArea').classList.add('hide')
         document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.remove('sideButtonActive')
         document.getElementById('infoBtn').classList.add('sideButtonActive')
@@ -115,6 +155,7 @@ document.getElementById('infoBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.remove('sideButtonActive')
         document.getElementById('setBtn').classList.remove('sideButtonActive')
         document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
 
         gotoBottom()
 })
@@ -126,6 +167,7 @@ document.getElementById('consoleBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.add('hide')
         document.getElementById('settingsArea').classList.add('hide')
         document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.remove('sideButtonActive')
         document.getElementById('infoBtn').classList.remove('sideButtonActive')
@@ -133,6 +175,7 @@ document.getElementById('consoleBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.remove('sideButtonActive')
         document.getElementById('setBtn').classList.remove('sideButtonActive')
         document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
 
         gotoBottom()
 })
@@ -144,6 +187,7 @@ document.getElementById('winnersBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.remove('hide')
         document.getElementById('settingsArea').classList.add('hide')
         document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.remove('sideButtonActive')
         document.getElementById('infoBtn').classList.remove('sideButtonActive')
@@ -151,6 +195,7 @@ document.getElementById('winnersBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.add('sideButtonActive')
         document.getElementById('setBtn').classList.remove('sideButtonActive')
         document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
 
         gotoBottom()
 })
@@ -162,6 +207,7 @@ document.getElementById('setBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.add('hide')
         document.getElementById('settingsArea').classList.remove('hide')
         document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.remove('sideButtonActive')
         document.getElementById('infoBtn').classList.remove('sideButtonActive')
@@ -169,6 +215,7 @@ document.getElementById('setBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.remove('sideButtonActive')
         document.getElementById('setBtn').classList.add('sideButtonActive')
         document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
 
         gotoBottom()
 
@@ -182,6 +229,7 @@ document.getElementById('logBtn').addEventListener('click', () => {
         document.getElementById('winnersArea').classList.add('hide')
         document.getElementById('settingsArea').classList.add('hide')
         document.getElementById('logArea').classList.remove('hide')
+        document.getElementById('creditArea').classList.add('hide')
 
         document.getElementById('minerBtn').classList.remove('sideButtonActive')
         document.getElementById('infoBtn').classList.remove('sideButtonActive')
@@ -189,6 +237,27 @@ document.getElementById('logBtn').addEventListener('click', () => {
         document.getElementById('winnersBtn').classList.remove('sideButtonActive')
         document.getElementById('setBtn').classList.remove('sideButtonActive')
         document.getElementById('logBtn').classList.add('sideButtonActive')
+        document.getElementById('creditBtn').classList.remove('sideButtonActive')
+
+        gotoBottom()
+})
+
+document.getElementById('creditBtn').addEventListener('click', () => {
+        document.getElementById('infoArea').classList.add('hide')
+        document.getElementById('minerArea').classList.add('hide')
+        document.getElementById('consoleArea').classList.add('hide')
+        document.getElementById('winnersArea').classList.add('hide')
+        document.getElementById('settingsArea').classList.add('hide')
+        document.getElementById('logArea').classList.add('hide')
+        document.getElementById('creditArea').classList.remove('hide')
+
+        document.getElementById('minerBtn').classList.remove('sideButtonActive')
+        document.getElementById('infoBtn').classList.remove('sideButtonActive')
+        document.getElementById('consoleBtn').classList.remove('sideButtonActive')
+        document.getElementById('winnersBtn').classList.remove('sideButtonActive')
+        document.getElementById('setBtn').classList.remove('sideButtonActive')
+        document.getElementById('logBtn').classList.remove('sideButtonActive')
+        document.getElementById('creditBtn').classList.add('sideButtonActive')
 
         gotoBottom()
 })
@@ -262,13 +331,16 @@ document.getElementById('acDetailsWallet').addEventListener('blur', () => {
     remote.getGlobal('settings').acDetailsWallet = thisVal.value
     settings.setSettings()
     document.getElementById('acDetailsWallet').parentElement.MaterialTextfield.change(thisVal.value)
+    acDetails.fetchAcDetailsOnce()
 })
 
 document.getElementById('acDetailsBurst').addEventListener('blur', () => {
     let thisVal = document.getElementById('acDetailsBurst')
     remote.getGlobal('settings').acDetailsBurst = thisVal.value
     settings.setSettings()
+    document.getElementById('myWalletBurst').innerHTML = remote.getGlobal('settings').acDetailsBurst
     document.getElementById('acDetailsBurst').parentElement.MaterialTextfield.change(thisVal.value)
+    acDetails.fetchAcDetailsOnce()
 })
 
 document.getElementById('acDetailsNumeric').addEventListener('blur', () => {
@@ -276,6 +348,7 @@ document.getElementById('acDetailsNumeric').addEventListener('blur', () => {
     remote.getGlobal('settings').acDetailsNumeric = thisVal.value
     settings.setSettings()
     document.getElementById('acDetailsNumeric').parentElement.MaterialTextfield.change(thisVal.value)
+    acDetails.fetchAcDetailsOnce()
 })
 
 document.getElementById('acDetailsPendingJson').addEventListener('blur', () => {
@@ -283,6 +356,7 @@ document.getElementById('acDetailsPendingJson').addEventListener('blur', () => {
     remote.getGlobal('settings').acDetailsPendingJson = thisVal.value
     settings.setSettings()
     document.getElementById('acDetailsPendingJson').parentElement.MaterialTextfield.change(thisVal.value)
+    acDetails.fetchAcDetailsOnce()
 })
 
 
@@ -615,3 +689,18 @@ document.getElementById('fldStart').addEventListener('click', () => {
     minerSettings.setConf()
 })
 
+document.getElementById('fldSound').addEventListener('click', () => {
+    check = true
+    if (hasClass(document.getElementById('checkSound'), 'is-checked')) check = false
+    
+    remote.getGlobal('settings').sound = check
+    settings.setSettings()
+})
+
+document.getElementById('fldNotification').addEventListener('click', () => {
+    check = true
+    if (hasClass(document.getElementById('checkNotification'), 'is-checked')) check = false
+    
+    remote.getGlobal('settings').notification = check
+    settings.setSettings()
+})

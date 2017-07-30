@@ -1,3 +1,19 @@
+/*
+CreepMinerGUI - Frontend for Creepskys creepMiner - based on web interface of creepMiner 
+Copyright (C) 2017 Vassilis Kritharakis
+
+This program is free software: you can redistribute it and/or modify it under the terms of 
+the GNU General Public License as published by the Free Software Foundation, either version 
+3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. 
+If not, see <http://www.gnu.org/licenses/>.
+*/
+
 'use strinct'
 
 const remote    = require('electron').remote
@@ -48,11 +64,11 @@ let setValues = (data) => {
     remote.getGlobal('conf').webserver.credentials['hashed-user'] = data.webserver.credentials['hashed-user']
     remote.getGlobal('conf').webserver.credentials['plain-pass'] = data.webserver.credentials['plain-pass']
     remote.getGlobal('conf').webserver.credentials['plain-user'] = data.webserver.credentials['plain-user']
-        
-    setConfFormsValues()
 }
 
 let setConfFormsValues = () => {
+    document.getElementById('fldWsUrl').parentElement.MaterialTextfield.change('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1])
+    
     document.getElementById('fldConfig').parentElement.MaterialTextfield.change(remote.getGlobal('conf').logging.config)
     document.getElementById('fldGeneral').parentElement.MaterialTextfield.change(remote.getGlobal('conf').logging.general)
     document.getElementById('fldMiner').parentElement.MaterialTextfield.change(remote.getGlobal('conf').logging.miner)
@@ -113,7 +129,7 @@ let setConfFormsValues = () => {
 
 module.exports = {
 
-    getConf: () => {
+    getConf: (updateFields = true) => {
         let confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("/")) + '/mining.conf'
         if (remote.getGlobal('share').platform == 'win32') {
 			confFile = remote.getGlobal('settings').minerPath.substring(0, remote.getGlobal('settings').minerPath.lastIndexOf("\\")) + '\\mining.conf'
@@ -121,6 +137,7 @@ module.exports = {
 
         fsAccess.get(confFile, 'Miner settings operations done', false).then((data) => {
             setValues(data)
+            if (updateFields) setConfFormsValues()
         })
     },
 
