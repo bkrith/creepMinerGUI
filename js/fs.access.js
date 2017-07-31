@@ -31,13 +31,11 @@ let getFile = (file, successMsg, refreshWallet) => {
         .catch((err) => {
             console.log(err)
             msg.message('warning', err, 'Settings')
-            return err
         })
     })
     .catch((err) => {
         console.log(err)
         msg.message('warning', err, 'Settings')
-        return err
     })
 }
 
@@ -74,7 +72,6 @@ let setFile = (file, settings, successMsg, refreshWallet) => {
         else {
             console.log(err)
             msg.message('warning', err, 'Settings')
-            return err
         }
     })
 }

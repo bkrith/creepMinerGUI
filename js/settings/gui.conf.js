@@ -73,10 +73,12 @@ module.exports = {
 
     getSettings: (updateFields = true) => {
         fsAccess.get('gui.conf', 'GUI settings operations done', true).then((data) => {
-            setValues(data, updateFields)
+            if (data) {
+                setValues(data, updateFields)
 
-            if (updateFields) setFormsValues()
-            else document.getElementById('myWalletBurst').innerHTML = remote.getGlobal('settings').acDetailsBurst
+                if (updateFields) setFormsValues()
+                else document.getElementById('myWalletBurst').innerHTML = remote.getGlobal('settings').acDetailsBurst
+            }
         })
     },
 

@@ -67,7 +67,9 @@ let setValues = (data) => {
 }
 
 let setConfFormsValues = () => {
-    document.getElementById('fldWsUrl').parentElement.MaterialTextfield.change('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1])
+    let wsUrlTemp = remote.getGlobal('conf').webserver.url.split('//')[1]
+    if (remote.getGlobal('conf').webserver.url) wsUrlTemp = remote.getGlobal('conf').webserver.url.split('//')[1]
+    document.getElementById('fldWsUrl').parentElement.MaterialTextfield.change('ws://' + wsUrlTemp)
     
     document.getElementById('fldConfig').parentElement.MaterialTextfield.change(remote.getGlobal('conf').logging.config)
     document.getElementById('fldGeneral').parentElement.MaterialTextfield.change(remote.getGlobal('conf').logging.general)
@@ -136,8 +138,10 @@ module.exports = {
         }
 
         fsAccess.get(confFile, 'Miner settings operations done', false).then((data) => {
-            setValues(data)
-            if (updateFields) setConfFormsValues()
+            if (data) {
+                setValues(data)
+                if (updateFields) setConfFormsValues()
+            }
         })
     },
 

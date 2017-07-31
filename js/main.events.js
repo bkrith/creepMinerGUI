@@ -48,6 +48,7 @@ ipcRenderer.on('loadedInfo', (event, data) => {
 ipcRenderer.on('resizeInfo', (event, data) => {
     remote.getGlobal('settings').width = data.width
     remote.getGlobal('settings').height = data.height
+    settings.setSettings()
 })
 
 ipcRenderer.on('closedInfo', (event, data) => {
@@ -90,14 +91,15 @@ let clearAreas = () => {
 // Start/Stop Mining button
 
 let startBtnProcess = () => {
-    if (remote.getGlobal('settings').minerPath) {
+    if (remote.getGlobal('settings').minerPath || document.getElementById('wsUrlOption').checked) {
         startBtn.innerHTML = '<i class="material-icons">stop</i> Stop mining'
         startBtn.classList.remove('greenButton')
         startBtn.classList.add('redButton')
         startstop = 1
         remote.getGlobal('share').restart = false
         clearAreas()
-        if (remote.getGlobal('share').connectType) {
+        if (document.getElementById('wsUrlOption').checked) {
+            remote.getGlobal('share').connectType = document.getElementById('fldWsUrl').value
             ws.startWs()
         }
         else if (remote.getGlobal('share').pid == null) {

@@ -310,7 +310,7 @@ let config = (cfg) => {
 
 let setProgress = (percentage = null) => {
     if (percentage) document.getElementById('progressBar').MaterialProgress.setProgress(percentage)
-    if (percentage == 100 && remote.getGlobal('settings').notification) {
+    if (percentage == 100 && remote.getGlobal('settings').notification && notifyInfo.title != '') {
         if (notifyInfo.message == '') notifyInfo.message = 'No deadlines'
         notifier.notify({
             title: notifyInfo.title,
@@ -319,6 +319,7 @@ let setProgress = (percentage = null) => {
             sound: true,
             wait: false
         })
+        notifyInfo.title = ''
     }
 }
 
@@ -363,10 +364,6 @@ let lastWinner = (winner) => {
 
 let wonBlock = (blocksWon) => {
     if (blocksWon) console.log(blocksWon)
-}
-
-let minerConsole = (data) => {
-    if (data) msg.message('warning', JSON.stringify(data), 'Miner')
 }
 
 let createChart = (blocks, deadlines) => {
@@ -492,8 +489,8 @@ let connect = () => {
                 ws.close()
                 clearAreas()
             }
-        
-            if (remote.getGlobal('share').connectType) {
+            
+            if (document.getElementById('wsUrlOption').checked) {
                 wsUrl = remote.getGlobal('share').connectType
             }
             else {
@@ -587,67 +584,68 @@ let connect = () => {
 		
                 if (data)
                 {
-                    let response = JSON.parse(data)
-                    
-                    switch (response.type)
-                    {
-                        case 'new block':
-                            newBlock(response)
-                            break
-                        case 'nonce found':
-                            nonceFound(response)
-                            break
-                        case 'nonce confirmed':
-                            addOrConfirm(response)
-                            checkAddBestRound(response.deadlineNum, response.deadline)
-                            checkAddBestOverall(response.deadlineNum, response.deadline)
-                            break
-                        case 'nonce submitted':
-                            addOrSubmit(response)
-                            break
-                        case 'config':
-                            config(response)
-                            break
-                        case 'progress':
-                            setProgress(response.value)
-                            break
-                        case 'lastWinner':
-                            lastWinner(response)
-                            break
-                        case 'blocksWonUpdate':
-                            wonBlock(reponse.blocksWon)
-                            break
-                        case 1:
-                            minerConsole(response)
-                            break
-                        case 2:
-                            minerConsole(response)
-                            break
-                        case 3:
-                            minerConsole(response)
-                            break
-                        case 4:
-                            minerConsole(response)
-                            break
-                        case 5:
-                            minerConsole(response)
-                            break
-                        case 6:
-                            minerConsole(response)
-                            break
-                        case 7:
-                            minerConsole(response)
-                            break
-                        case 8:
-                            minerConsole(response)
-                            break
-                        default:
-                            minerConsole(response)
-                            break
+                    try {
+                        let response = JSON.parse(data)
+                        
+                        switch (response.type)
+                        {
+                            case 'new block':
+                                newBlock(response)
+                                break
+                            case 'nonce found':
+                                nonceFound(response)
+                                break
+                            case 'nonce confirmed':
+                                addOrConfirm(response)
+                                checkAddBestRound(response.deadlineNum, response.deadline)
+                                checkAddBestOverall(response.deadlineNum, response.deadline)
+                                break
+                            case 'nonce submitted':
+                                addOrSubmit(response)
+                                break
+                            case 'config':
+                                config(response)
+                                break
+                            case 'progress':
+                                setProgress(response.value)
+                                break
+                            case 'lastWinner':
+                                lastWinner(response)
+                                break
+                            case 'blocksWonUpdate':
+                                wonBlock(reponse.blocksWon)
+                                break
+                            case 1:
+                                minerConsole(response.text)
+                                break
+                            case 2:
+                                minerConsole(response.text)
+                                break
+                            case 3:
+                                minerConsole(response.text)
+                                break
+                            case 4:
+                                minerConsole(response.text)
+                                break
+                            case 5:
+                                // minerConsole(response.text)
+                                break
+                            default:
+                                // minerConsole(response.text)
+                                break
+                        }
+                    }
+                    catch(err) {
+                        // console.log(data)
                     }
                 }
             }
     }
+
+
+let minerConsole = (data) => {
+    if (data) msg.message('warning', data, 'Miner', false)
+}
 
 module.exports = {
     

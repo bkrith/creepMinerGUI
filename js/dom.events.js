@@ -31,7 +31,8 @@ if (! wizardDialogModal.showModal) dialogPolyfill.registerDialog(wizardDialogMod
 // Some init sets
 
     document.getElementById('fldWsUrl').disabled = true
-    document.getElementById('fldWsUrl').value = ('ws://' + remote.getGlobal('conf').webserver.url.split('//')[1])    
+    if (remote.getGlobal('conf').webserver.url) document.getElementById('fldWsUrl').value = 'ws://' + remote.getGlobal('conf').webserver.url.split('//')[1]
+    else document.getElementById('fldWsUrl').value = 'ws://'
 
 // Element to Bottom
 
@@ -272,12 +273,21 @@ let selectMiner = () => {
             settings.setSettings()
             minerSettings.getConf()
             document.getElementById('fldMinerPath').parentElement.MaterialTextfield.change(fileName[0])
+            document.getElementById('fldMinerPathd').parentElement.MaterialTextfield.change(fileName[0])
             document.getElementById('fldMinerPathModal').parentElement.MaterialTextfield.change(fileName[0])
         }
     })
 } 
 
 document.getElementById('selectMinerBtn').addEventListener('click', () => {
+        selectMiner()
+})
+
+document.getElementById('selectMinerBtn1').addEventListener('click', () => {
+        selectMiner()
+})
+
+document.getElementById('selectMinerBtn2').addEventListener('click', () => {
         selectMiner()
 })
 

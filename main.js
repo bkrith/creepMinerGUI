@@ -116,7 +116,7 @@ let mainWindow = null
 
 
 let createWindow = () => {
-  fs.readFile('./gui.conf', 'utf8').then((data) => {
+  fs.readFile('gui.conf', 'utf8').then((data) => {
     curTray = JSON.parse(data).tray
     
     // Create the browser window.
@@ -178,10 +178,12 @@ let createWindow = () => {
       }
 
     mainWindow.on('minimize', (event) => {
+      /*
       if (curTray) {
         event.preventDefault()
         mainWindow.hide()
       }
+      */
     })
 
     mainWindow.on('show', () => {
@@ -215,25 +217,6 @@ let createWindow = () => {
     })
 
     mainWindow.on('closed', () => {
-      fs.open('gui.conf', 'r').then((fd) => {
-        fs.writeFile('gui.conf', JSON.stringify(global.settings, null, 4))
-        .catch((err) => {
-            console.log(err)
-        })
-      })
-      .catch((err) => {
-          if (err.code === 'ENOENT') {
-              fs.writeFile('gui.conf', JSON.stringify(global.settings, null, 4))
-              .catch((err) => {
-                  console.log(err)
-              })
-          }
-          else {
-              console.log(err)
-          }
-      })
-
-
       killProcess.kill(global.share.pid)
       killProcess.kill(global.share.walletid)
 

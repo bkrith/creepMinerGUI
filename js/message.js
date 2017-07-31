@@ -18,7 +18,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 
 module.exports = {
-    message: (icon, msg, section) => {
+    message: (icon, msg, section, status = true) => {
         if (msg) {
             let text = '<i class="material-icons">' + icon + '</i> ' + msg
             let d = new Date()
@@ -26,19 +26,22 @@ module.exports = {
             now = now.split(' ')[0] + ': '
 
             document.getElementById('logAreaDiv').innerHTML += now + section + ': ' + text + '<br>'
-            switch(section) {
-                case 'Miner':
-                    document.getElementById('statusMiner').innerHTML = text
-                    break
-                case 'Wallet':
-                    document.getElementById('statusWallet').innerHTML = text
-                    break
-                case 'Settings':
-                    document.getElementById('statusSettings').innerHTML = text
-                    break
-                case 'General':
-                    document.getElementById('statusGeneral').innerHTML = text
-                    break
+            
+            if (status) {
+                switch(section) {
+                    case 'Miner':
+                        document.getElementById('statusMiner').innerHTML = text
+                        break
+                    case 'Wallet':
+                        document.getElementById('statusWallet').innerHTML = text
+                        break
+                    case 'Settings':
+                        document.getElementById('statusSettings').innerHTML = text
+                        break
+                    case 'General':
+                        document.getElementById('statusGeneral').innerHTML = text
+                        break
+                }
             }
         }
     }
