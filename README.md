@@ -17,9 +17,6 @@ npm run-scripts win
 
 npm run-scripts mac (not tested!!)
 
-Already build for linux/windows:
-
-https://drive.google.com/drive/folders/0B-VO0irYuQ-_clMwRVlnZDlOYlE?usp=sharing
 
 
 version 1.2.0
