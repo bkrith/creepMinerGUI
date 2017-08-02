@@ -1,6 +1,7 @@
 # creepMinerGUI
 
 Requirements for compile:
+
 npm
 
 Installation:
